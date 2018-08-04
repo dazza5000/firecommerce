@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'validators.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:firecommerce/data/authentication.dart';
 
 class Bloc extends Object with Validators {
   final _email = BehaviorSubject<String>();
@@ -9,7 +10,7 @@ class Bloc extends Object with Validators {
   // retrieve data from stream
   Stream<String> get email    => _email.stream.transform(validateEmail);
   Stream<String> get password => _password.stream.transform(validatePassword);
-  Stream<bool>   get submitValid => Observable.combineLatest2(email, password, (e, p) => true);
+  Stream<bool>   get submitValid => Observable.combineLatest2(email, password, (e, p) => _loginWithFirebase(e, p));
 
   // add data to stream
   Function(String) get changeEmail    => _email.sink.add;
@@ -20,6 +21,10 @@ class Bloc extends Object with Validators {
     final validPassword = _password.value;
 
     print('$validEmail and $validPassword');
+  }
+
+  _loginWithFirebase(String email, String password) {
+    Authentication().signInWithEmail(email, password);
   }
 
   dispose() {
